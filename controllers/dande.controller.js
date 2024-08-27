@@ -1,0 +1,61 @@
+const DanDeService = require('../services/dande.service');
+const jwtConfig = require('../config/jwt.config');
+const bcryptUtil = require('../utils/bcrypt.util');
+const jwtUtil = require('../utils/jwt.util');
+
+
+exports.create = async (req, res) => {
+
+    const object = {
+        value: req.body.value,
+        money: req.body.money,
+    }
+
+    const dande = await DanDeService.create(object);
+    return res.json({
+        data: dande,
+        message: 'Tạo dàn đề thành công'
+    });
+}
+
+
+
+exports.getDanDes = async (req, res) => {
+
+    var dandes = await DanDeService.findAll();
+
+    return res.status(200).json({
+        results: dandes.length,
+        data: dandes,
+        status: true
+    });
+}
+
+
+
+exports.update = async (req, res) => {
+
+    const object = {
+        money: req.body.money,
+    }
+
+    await DanDeService.update(object, req.params.id);
+
+    dande = await DanDeService.findById(req.params.id);
+
+    return res.json({
+        data: dande,
+        message: 'Cập nhật giá tiền thành công.',
+        status: true
+    });
+}
+
+
+exports.delete = async (req, res) => {
+    await DanDeService.delete(req.params.id);
+    return res.json({
+        message: 'Xóa data thành công',
+        status: true
+    });
+};
+
