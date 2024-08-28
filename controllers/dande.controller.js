@@ -59,7 +59,7 @@ exports.getStatic = async (req, res) => {
     for (const [number, totalMoney] of Object.entries(moneyDict)) {
         result[number] = {
             totalMoney,
-            status: totalMoney > 10000 ? 'Vượt quá hạn mước' : 'Bình Thường'
+            status: totalMoney > 3000 ? 'Vượt quá hạn mước' : 'Bình Thường'
         };
     }
 
