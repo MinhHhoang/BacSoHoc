@@ -19,6 +19,14 @@ exports.findById = (id) => {
   return DanDeModel.findByPk(id);
 }
 
+exports.findByIdValue = (value) => {
+  return DanDeModel.findOne({
+    where : {
+      value : value
+    }
+  });
+}
+
 
 exports.findAll = () => {
   const startOfDay = moment().startOf('day').toDate(); // Start of today

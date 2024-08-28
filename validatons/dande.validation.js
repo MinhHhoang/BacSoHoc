@@ -10,6 +10,7 @@ const validatePassword = (value) => {
 module.exports = {
     create: Joi.object().keys({
         id: Joi.number().allow(),
+        name: Joi.string().allow(),
         createdAt: Joi.string().allow(),
         updatedAt: Joi.string().allow(),
         id: Joi.number().allow(),
