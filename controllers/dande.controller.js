@@ -32,6 +32,47 @@ exports.getDanDes = async (req, res) => {
 }
 
 
+exports.getStatic = async (req, res) => {
+
+    var objects = await DanDeService.findAll();
+
+    // Khởi tạo số tiền cho các số từ 00 đến 99
+    const moneyDict = {};
+    for (let i = 0; i < 100; i++) {
+        const key = i.toString().padStart(2, '0');
+        moneyDict[key] = 0;
+    }
+
+
+    // Cập nhật số tiền cho các số
+    objects.forEach(obj => {
+        const numbers = obj.value.split(', ').map(num => num.trim());
+        const money = obj.money;
+        numbers.forEach(number => {
+            if (moneyDict[number] !== undefined) {
+                moneyDict[number] += money;
+            }
+        });
+    });
+
+    // Thêm trường "bất thường" hoặc "bình thường"
+    const result = {};
+    for (const [number, totalMoney] of Object.entries(moneyDict)) {
+        result[number] = {
+            totalMoney,
+            status: totalMoney > 10000 ? 'Vượt quá hạn mước' : 'Bình Thường'
+        };
+    }
+
+
+
+    return res.status(200).json({
+        data: result,
+        status: true
+    });
+}
+
+
 
 exports.update = async (req, res) => {
 
