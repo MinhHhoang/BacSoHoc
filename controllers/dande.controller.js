@@ -43,7 +43,6 @@ exports.getStatic = async (req, res) => {
         moneyDict[key] = 0;
     }
 
-
     // Cập nhật số tiền cho các số
     objects.forEach(obj => {
         const numbers = obj.value.split(', ').map(num => num.trim());
@@ -64,10 +63,16 @@ exports.getStatic = async (req, res) => {
         };
     }
 
-
+    // Chuyển đổi đối tượng kết quả thành mảng để sắp xếp
+    const sortedResult = Object.entries(result)
+        .sort((a, b) => b[1].totalMoney - a[1].totalMoney) // Sắp xếp giảm dần theo totalMoney
+        .reduce((acc, [number, value]) => {
+            acc[number] = value;
+            return acc;
+        }, {});
 
     return res.status(200).json({
-        data: result,
+        data: sortedResult,
         status: true
     });
 }
