@@ -6,11 +6,15 @@ const jwtUtil = require('../utils/jwt.util');
 
 exports.create = async (req, res) => {
 
+    
+
     const object = {
         name : req.body.name,
         value: req.body.value,
         money: req.body.money,
     }
+
+    console.log(object)
 
     let dan = await DanDeService.findByIdValue(object.value);
 
