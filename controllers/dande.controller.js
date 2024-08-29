@@ -65,49 +65,68 @@ exports.reset = async (req, res) => {
 
 
 exports.getStatic = async (req, res) => {
+    try {
+        // Fetch data from DanDeService
+        const objects = await DanDeService.findAll();
 
-    var objects = await DanDeService.findAll();
+        const limitSetting = await DanDeService.findByIdSetting()
 
-    // Khởi tạo số tiền cho các số từ 00 đến 99
-    const moneyDict = {};
-    for (let i = 0; i < 100; i++) {
-        const key = i.toString().padStart(2, '0');
-        moneyDict[key] = 0;
-    }
+        // Initialize the money dictionary for numbers from 00 to 99
+        const moneyDict = {};
+        for (let i = 0; i < 100; i++) {
+            const key = i.toString().padStart(2, '0');
+            moneyDict[key] = 0;
+        }
 
-    // Cập nhật số tiền cho các số
-    objects.forEach(obj => {
-        const numbers = obj.value.split(', ').map(num => num.trim());
-        const money = obj.money;
-        numbers.forEach(number => {
-            if (moneyDict[number] !== undefined) {
-                moneyDict[number] += money;
-            }
+        // Update the money dictionary based on the fetched objects
+        objects.forEach(obj => {
+            const numbers = obj.value.split(', ').map(num => num.trim());
+            const money = obj.money;
+            numbers.forEach(number => {
+                if (moneyDict[number] !== undefined) {
+                    moneyDict[number] += money;
+                }
+            });
         });
-    });
 
-    // Thêm trường "bất thường" hoặc "bình thường"
-    const result = {};
-    for (const [number, totalMoney] of Object.entries(moneyDict)) {
-        result[number] = {
-            totalMoney,
-            status: totalMoney > 3000 ? 'Vượt quá hạn mước' : 'Bình Thường'
-        };
+        // Add "bất thường" or "bình thường" status
+        const result = {};
+        let sumTotalMoney = 0; // Initialize sumTotalMoney
+
+        for (const [number, totalMoney] of Object.entries(moneyDict)) {
+            const status = totalMoney > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
+            result[number] = {
+                totalMoney,
+                status
+            };
+            sumTotalMoney += totalMoney; // Accumulate total money
+        }
+
+        // Convert result object to array and sort by totalMoney in descending order
+        const sortedResult = Object.entries(result)
+            .sort((a, b) => b[1].totalMoney - a[1].totalMoney)
+            .reduce((acc, [number, value]) => {
+                acc[number] = value;
+                return acc;
+            }, {});
+
+        // Return the response with sorted results and sumTotalMoney
+        return res.status(200).json({
+            limitSetting,
+            data: sortedResult,
+            sumTotalMoney, // Include sumTotalMoney in the response
+            status: true
+        });
+    } catch (error) {
+        // Handle errors and respond with appropriate status
+        console.error('Error fetching or processing data:', error);
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            status: false
+        });
     }
+};
 
-    // Chuyển đổi đối tượng kết quả thành mảng để sắp xếp
-    const sortedResult = Object.entries(result)
-        .sort((a, b) => b[1].totalMoney - a[1].totalMoney) // Sắp xếp giảm dần theo totalMoney
-        .reduce((acc, [number, value]) => {
-            acc[number] = value;
-            return acc;
-        }, {});
-
-    return res.status(200).json({
-        data: sortedResult,
-        status: true
-    });
-}
 
 
 

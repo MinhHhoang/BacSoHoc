@@ -1,4 +1,5 @@
 const DanDes = require('./models/dande.model'); 
+const Settings = require('./models/setting.model'); 
 const sequelize = require('./models/connection');
 
 

@@ -1,4 +1,5 @@
 const DanDeModel = require('../models/dande.model');
+const SettingModel = require('../models/setting.model');
 const cacheUtil = require('../utils/cache.util');
 const moment = require("moment");
 const Sequelize = require('sequelize');
@@ -11,6 +12,17 @@ exports.create = (object) => {
 exports.update = (object, id) => {
   return DanDeModel.update(object, {
     where: { id: id },
+  });
+};
+
+exports.findByIdSetting = () => {
+  return SettingModel.findByPk(1);
+}
+
+
+exports.updateSetting = (object) => {
+  return SettingModel.update(object, {
+    where: { id: 1 },
   });
 };
 
