@@ -11,7 +11,7 @@ exports.create = async (req, res) => {
     const object = {
         name : req.body.name,
         value: req.body.value,
-        money: req.body.money,
+        money: Number(req.body.money),
     }
 
     console.log(object)
