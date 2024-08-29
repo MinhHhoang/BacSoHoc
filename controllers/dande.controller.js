@@ -50,6 +50,20 @@ exports.getDanDes = async (req, res) => {
 }
 
 
+exports.reset = async (req, res) => {
+
+    await DanDeService.reset();
+
+    var dandes = await DanDeService.findAll();
+
+    return res.status(200).json({
+        results: dandes.length,
+        data: dandes,
+        status: true
+    });
+}
+
+
 exports.getStatic = async (req, res) => {
 
     var objects = await DanDeService.findAll();

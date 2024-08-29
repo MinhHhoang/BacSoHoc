@@ -14,6 +14,22 @@ exports.update = (object, id) => {
   });
 };
 
+exports.reset = () => {
+  return DanDeModel.update(
+    {
+      money: 0
+    },
+    {
+      where: {
+        id: {
+          [Op.gt]: 0  // this will update all the records 
+        }                           // with an id from the list
+      }
+    }
+  )
+};
+
+
 
 exports.findById = (id) => {
   return DanDeModel.findByPk(id);
@@ -21,8 +37,8 @@ exports.findById = (id) => {
 
 exports.findByIdValue = (value) => {
   return DanDeModel.findOne({
-    where : {
-      value : value
+    where: {
+      value: value
     }
   });
 }
@@ -32,11 +48,11 @@ exports.findAll = () => {
   const startOfDay = moment().startOf('day').toDate(); // Start of today
   const endOfDay = moment().endOf('day').toDate(); // End of today
   return DanDeModel.findAll({
-    where: {
-      createdAt: {
-        [Op.between]: [startOfDay, endOfDay]
-      }
-    }
+    // where: {
+    //   createdAt: {
+    //     [Op.between]: [startOfDay, endOfDay]
+    //   }
+    // }
   });
 };
 

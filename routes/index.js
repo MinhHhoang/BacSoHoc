@@ -13,6 +13,7 @@ router.put('/dande/:id', validate(dandeValidate.create), ErrorHandler(DanDeContr
 router.delete('/dande/:id', ErrorHandler(DanDeController.delete));
 router.get('/dande', ErrorHandler(DanDeController.getDanDes));
 router.get('/static', ErrorHandler(DanDeController.getStatic));
+router.get('/reset', ErrorHandler(DanDeController.reset));
 
 router.all('*', (req, res) => res.status(400).json({ message: 'Bad Request.' }));
 
