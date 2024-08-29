@@ -148,6 +148,18 @@ exports.update = async (req, res) => {
 }
 
 
+exports.updateSetting = async (req, res) => {
+    const limitSetting = await DanDeService.findByIdSetting()
+
+    await DanDeService.updateSetting({...limitSetting,limit : req.body.limit});
+
+    return res.json({
+        message: 'Cập nhật hạn mức thành công.',
+        status: true
+    });
+}
+
+
 exports.delete = async (req, res) => {
     await DanDeService.delete(req.params.id);
     return res.json({

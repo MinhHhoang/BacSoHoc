@@ -15,6 +15,9 @@ router.get('/dande', ErrorHandler(DanDeController.getDanDes));
 router.get('/static', ErrorHandler(DanDeController.getStatic));
 router.get('/reset', ErrorHandler(DanDeController.reset));
 
+
+router.put('/setting', ErrorHandler(DanDeController.updateSetting));
+
 router.all('*', (req, res) => res.status(400).json({ message: 'Bad Request.' }));
 
 
