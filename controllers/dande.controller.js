@@ -9,7 +9,7 @@ exports.create = async (req, res) => {
     
 
     const object = {
-        name : req.body.name || "Lộn xộn",
+        name : req.body.name,
         value: req.body.value,
         money: Number(req.body.money),
     }
