@@ -1,12 +1,7 @@
 const DanDeService = require('../services/dande.service');
-const jwtConfig = require('../config/jwt.config');
-const bcryptUtil = require('../utils/bcrypt.util');
-const jwtUtil = require('../utils/jwt.util');
 
 
 exports.create = async (req, res) => {
-
-    
 
     const object = {
         name : req.body.name,
@@ -37,6 +32,20 @@ exports.create = async (req, res) => {
 }
 
 
+// exports.createChuyen = async (req, res) => {
+
+    
+
+//     for (let i = 0; i < 100; i++) {
+//         const key = i.toString().padStart(2, '0');
+//         await DanDeService.createUngTien({name : key, tienung: 0})
+//     }
+
+
+
+// }
+
+
 
 exports.getDanDes = async (req, res) => {
 
@@ -51,70 +60,110 @@ exports.getDanDes = async (req, res) => {
 
 
 exports.reset = async (req, res) => {
+    try {
+        // Execute both asynchronous operations concurrently
+        await Promise.all([
+            DanDeService.reset(),
+            DanDeService.resetUngChuyen()
+        ]);
 
-    await DanDeService.reset();
+        // Fetch the data after the resets are complete
+        const dandes = await DanDeService.findAll();
 
-    var dandes = await DanDeService.findAll();
-
-    return res.status(200).json({
-        results: dandes.length,
-        data: dandes,
-        status: true
-    });
+        // Send the successful response
+        return res.status(200).json({
+            results: dandes.length,
+            data: dandes,
+            status: true
+        });
+    } catch (error) {
+        // Handle any errors that occur during the async operations
+        console.error('Error occurred during reset:', error);
+        return res.status(500).json({
+            status: false,
+            message: 'An error occurred during the reset operation'
+        });
+    }
 }
 
 
 exports.getStatic = async (req, res) => {
     try {
         // Fetch data from DanDeService
-        const objects = await DanDeService.findAll();
+        const [objects, limitSetting, ungchuyens] = await Promise.all([
+            DanDeService.findAll(),
+            DanDeService.findByIdSetting(),
+            DanDeService.findAllUngChuyen()
+        ]);
 
-        const limitSetting = await DanDeService.findByIdSetting()
-
+        
+        
         // Initialize the money dictionary for numbers from 00 to 99
-        const moneyDict = {};
-        for (let i = 0; i < 100; i++) {
-            const key = i.toString().padStart(2, '0');
-            moneyDict[key] = 0;
-        }
+        const moneyDict = Array.from({ length: 100 }, (_, i) => ({
+            key: i.toString().padStart(2, '0'),
+            totalMoney: 0,
+            tienung: 0,
+            idtienung: 0
+        }));
+        
+        // Update moneyDict with tienung values from ungchuyens
+        ungchuyens.forEach(({ name, tienung, id }) => {
+            const index = moneyDict.findIndex(item => item.key === name);
+            if (index !== -1) {
+                moneyDict[index].tienung = tienung;
+                moneyDict[index].idtienung = id;
+            }
+        });
+        
 
         // Update the money dictionary based on the fetched objects
         objects.forEach(obj => {
-            const numbers = obj.value.split(', ').map(num => num.trim());
+            const numbers = obj.value.split(',').map(num => num.trim());
             const money = obj.money;
             numbers.forEach(number => {
-                if (moneyDict[number] !== undefined) {
-                    moneyDict[number] += money;
+                const dictEntry = moneyDict.find(entry => entry.key === number);
+                if (dictEntry) {
+                    dictEntry.totalMoney += money;
                 }
             });
         });
 
-        // Add "bất thường" or "bình thường" status
-        const result = {};
-        let sumTotalMoney = 0; // Initialize sumTotalMoney
-
-        for (const [number, totalMoney] of Object.entries(moneyDict)) {
-            const status = totalMoney > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
-            result[number] = {
+        // Convert the moneyDict array to an object and process status
+        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung }) => {
+            const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
+            const total = totalMoney - tienung;
+            acc[key] = {
+                idtienung,
                 totalMoney,
+                tienung,
+                total,
                 status
             };
-            sumTotalMoney += totalMoney; // Accumulate total money
-        }
+            return acc;
+        }, {});
 
         // Convert result object to array and sort by totalMoney in descending order
         const sortedResult = Object.entries(result)
-            .sort((a, b) => b[1].totalMoney - a[1].totalMoney)
+            .sort(([, a], [, b]) => b.totalMoney - a.totalMoney)
             .reduce((acc, [number, value]) => {
                 acc[number] = value;
                 return acc;
             }, {});
 
+        // Calculate sumTotalMoney
+        const sumTotalMoney = Object.values(result)
+            .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
+
+            // Calculate sumTotalMoney
+        const sumTotalAfterUng = Object.values(result)
+        .reduce((sum, { total }) => sum + total, 0);
+
         // Return the response with sorted results and sumTotalMoney
         return res.status(200).json({
             limitSetting,
             data: sortedResult,
-            sumTotalMoney, // Include sumTotalMoney in the response
+            sumTotalMoney,
+            sumTotalAfterUng,
             status: true
         });
     } catch (error) {
@@ -126,6 +175,7 @@ exports.getStatic = async (req, res) => {
         });
     }
 };
+
 
 
 
@@ -145,6 +195,107 @@ exports.update = async (req, res) => {
         message: 'Cập nhật giá tiền thành công.',
         status: true
     });
+}
+
+
+exports.updateUngTien = async (req, res) => {
+
+    const object = {
+        tienung: req.params.tienung,
+    }
+
+    console.log(object)
+
+    await DanDeService.updateUngTien(object, req.params.id);
+
+    try {
+        // Fetch data from DanDeService
+        const [objects, limitSetting, ungchuyens] = await Promise.all([
+            DanDeService.findAll(),
+            DanDeService.findByIdSetting(),
+            DanDeService.findAllUngChuyen()
+        ]);
+
+        
+        
+        // Initialize the money dictionary for numbers from 00 to 99
+        const moneyDict = Array.from({ length: 100 }, (_, i) => ({
+            key: i.toString().padStart(2, '0'),
+            totalMoney: 0,
+            tienung: 0,
+            idtienung: 0
+        }));
+        
+        // Update moneyDict with tienung values from ungchuyens
+        ungchuyens.forEach(({ name, tienung, id }) => {
+            const index = moneyDict.findIndex(item => item.key === name);
+            if (index !== -1) {
+                moneyDict[index].tienung = tienung;
+                moneyDict[index].idtienung = id;
+            }
+        });
+        
+
+        // Update the money dictionary based on the fetched objects
+        objects.forEach(obj => {
+            const numbers = obj.value.split(',').map(num => num.trim());
+            const money = obj.money;
+            numbers.forEach(number => {
+                const dictEntry = moneyDict.find(entry => entry.key === number);
+                if (dictEntry) {
+                    dictEntry.totalMoney += money;
+                }
+            });
+        });
+
+        // Convert the moneyDict array to an object and process status
+        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung }) => {
+            const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
+            const total = totalMoney - tienung;
+            acc[key] = {
+                idtienung,
+                totalMoney,
+                tienung,
+                total,
+                status
+            };
+            return acc;
+        }, {});
+
+        // Convert result object to array and sort by totalMoney in descending order
+        const sortedResult = Object.entries(result)
+            .sort(([, a], [, b]) => b.totalMoney - a.totalMoney)
+            .reduce((acc, [number, value]) => {
+                acc[number] = value;
+                return acc;
+            }, {});
+
+        // Calculate sumTotalMoney
+        const sumTotalMoney = Object.values(result)
+            .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
+
+            // Calculate sumTotalMoney
+        const sumTotalAfterUng = Object.values(result)
+        .reduce((sum, { total }) => sum + total, 0);
+
+        // Return the response with sorted results and sumTotalMoney
+        return res.status(200).json({
+            limitSetting,
+            data: sortedResult,
+            sumTotalMoney,
+            sumTotalAfterUng,
+            status: true
+        });
+    } catch (error) {
+        // Handle errors and respond with appropriate status
+        console.error('Error fetching or processing data:', error);
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            status: false
+        });
+    }
+
+   
 }
 
 

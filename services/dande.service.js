@@ -1,5 +1,6 @@
 const DanDeModel = require('../models/dande.model');
 const SettingModel = require('../models/setting.model');
+const UngChuyenModel = require('../models/ungchuyen.model');
 const cacheUtil = require('../utils/cache.util');
 const moment = require("moment");
 const Sequelize = require('sequelize');
@@ -9,8 +10,19 @@ exports.create = (object) => {
   return DanDeModel.create(object);
 }
 
+exports.createUngTien = (object) => {
+  return UngChuyenModel.create(object);
+}
+
 exports.update = (object, id) => {
   return DanDeModel.update(object, {
+    where: { id: id },
+  });
+};
+
+
+exports.updateUngTien = (object, id) => {
+  return UngChuyenModel.update(object, {
     where: { id: id },
   });
 };
@@ -42,6 +54,21 @@ exports.reset = () => {
 };
 
 
+exports.resetUngChuyen = () => {
+  return UngChuyenModel.update(
+    {
+      tienung: 0
+    },
+    {
+      where: {
+        id: {
+          [Op.gt]: 0  // this will update all the records 
+        }                           // with an id from the list
+      }
+    }
+  )
+};
+
 
 exports.findById = (id) => {
   return DanDeModel.findByPk(id);
@@ -63,6 +90,11 @@ exports.findAll = () => {
       }
     }
   });
+};
+
+
+exports.findAllUngChuyen = () => {
+  return UngChuyenModel.findAll();
 };
 
 
