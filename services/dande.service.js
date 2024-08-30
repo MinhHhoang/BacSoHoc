@@ -55,7 +55,7 @@ exports.findByIdValue = (value) => {
   });
 }
 
-exports.findAll = (excludedValue) => {
+exports.findAll = () => {
   return DanDeModel.findAll({
     where: {
       value: {
