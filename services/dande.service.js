@@ -21,6 +21,7 @@ exports.update = (object, id) => {
 };
 
 
+
 exports.updateUngTien = (object, id) => {
   return UngChuyenModel.update(object, {
     where: { id: id },

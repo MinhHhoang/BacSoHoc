@@ -14,18 +14,15 @@ exports.create = async (req, res) => {
     let dan = await DanDeService.findByIdValue(object.value);
 
     if (dan) {
-        const dande = await DanDeService.update({ ...dan, money: object.money }, dan.id);
-        return res.json({
-            data: dande,
-            message: 'Dàn đề đã có sẵn nên cập nhật số tiền thành công'
-        });
-    } else {
-        const dande = await DanDeService.create(object);
-        return res.json({
-            data: dande,
-            message: 'Tạo dàn đề thành công'
-        });
-    }
+        const dande = await DanDeService.delete(dan.id);
+    } 
+
+
+    const dande = await DanDeService.create(object);
+    return res.json({
+        data: dande,
+        message: 'Tạo dàn đề thành công'
+    });
 
 
 
