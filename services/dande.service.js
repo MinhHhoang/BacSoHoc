@@ -55,16 +55,13 @@ exports.findByIdValue = (value) => {
   });
 }
 
-
-exports.findAll = () => {
-  const startOfDay = moment().startOf('day').toDate(); // Start of today
-  const endOfDay = moment().endOf('day').toDate(); // End of today
+exports.findAll = (excludedValue) => {
   return DanDeModel.findAll({
-    // where: {
-    //   createdAt: {
-    //     [Op.between]: [startOfDay, endOfDay]
-    //   }
-    // }
+    where: {
+      value: {
+        [Op.ne]: "_"
+      }
+    }
   });
 };
 
