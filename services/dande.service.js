@@ -58,7 +58,7 @@ exports.findByIdValue = (value) => {
 exports.findAll = () => {
   return DanDeModel.findAll({
     where: {
-      value: {
+      name: {
         [Op.ne]: "_"
       }
     }
