@@ -14,7 +14,7 @@ exports.create = async (req, res) => {
 
     if (dan) {
 
-        const totalMoney = Number(req.body.money) + dan.money;
+        const totalMoney = Number(req.body.money) + Number(dan.money);
 
         const dande = await DanDeService.update({...object,name : dan.name, money : totalMoney }, dan.id);
         return res.json({
