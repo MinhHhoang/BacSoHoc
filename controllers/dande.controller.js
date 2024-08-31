@@ -96,7 +96,7 @@ exports.getStatic = async (req, res) => {
     try {
         // Fetch data from DanDeService
         const [objects, limitSetting, ungchuyens] = await Promise.all([
-            DanDeService.findAll(),
+            DanDeService.findAlls(),
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);

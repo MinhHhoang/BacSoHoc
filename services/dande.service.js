@@ -95,6 +95,10 @@ exports.findAll = () => {
   });
 };
 
+exports.findAlls = () => {
+  return DanDeModel.findAll();
+};
+
 
 exports.findAllUngChuyen = () => {
   return UngChuyenModel.findAll();
