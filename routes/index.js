@@ -11,6 +11,7 @@ const dandeValidate = require('../validatons/dande.validation');
 router.post('/dande/create', validate(dandeValidate.create), ErrorHandler(DanDeController.create));
 router.get('/dande/createChuyen', ErrorHandler(DanDeController.createChuyen));
 router.put('/dande/:id', validate(dandeValidate.create), ErrorHandler(DanDeController.update));
+router.put('/dande/add/:id', validate(dandeValidate.create), ErrorHandler(DanDeController.updateCongtien));
 router.get('/ungtien/:id/:tienung', ErrorHandler(DanDeController.updateUngTien));
 router.delete('/dande/:id', ErrorHandler(DanDeController.delete));
 router.get('/dande', ErrorHandler(DanDeController.getDanDes));

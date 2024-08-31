@@ -202,6 +202,23 @@ exports.update = async (req, res) => {
     });
 }
 
+exports.updateCongtien = async (req, res) => {
+
+    let object = await DanDeService.findById(req.params.id);
+
+    
+
+    await DanDeService.update({...object, money : Number(req.body.money) + object.money}, req.params.id);
+
+    dande = await DanDeService.findById(req.params.id);
+
+    return res.json({
+        data: dande,
+        message: 'Cập nhật giá tiền thành công.',
+        status: true
+    });
+}
+
 
 exports.updateUngTien = async (req, res) => {
 
