@@ -87,7 +87,9 @@ exports.findAll = () => {
   return DanDeModel.findAll({
     where: {
         name: {
-        [Op.not]: [null, '', '_'] // Excludes null, empty strings, and "_"
+        [Op.ne]: [null] ,// Excludes null, empty strings, and "_",
+        [Op.ne]: [''] ,// Excludes null, empty strings, and "_",
+        [Op.ne]: ['_'] // Excludes null, empty strings, and "_"
       }
       
     }
