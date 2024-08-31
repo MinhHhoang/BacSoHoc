@@ -86,9 +86,10 @@ exports.findByIdValue = (value) => {
 exports.findAll = () => {
   return DanDeModel.findAll({
     where: {
-      name: {
-        [Op.ne]: ["_","",null]
+        name: {
+        [Op.not]: [null, '', '_'] // Excludes null, empty strings, and "_"
       }
+      
     }
   });
 };
