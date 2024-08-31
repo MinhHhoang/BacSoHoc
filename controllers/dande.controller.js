@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
         const totalMoney = Number(req.body.money) + Number(dan.money);
 
         console.log(totalMoney)
-        onsole.log(dan.id)
+        console.log(dan.id)
 
         const dande = await DanDeService.update({...object,name : dan.name, money : totalMoney }, dan.id);
         return res.json({
