@@ -87,7 +87,7 @@ exports.findAll = () => {
   return DanDeModel.findAll({
     where: {
       name: {
-        [Op.ne]: "_"
+        [Op.ne]: ["_","",null]
       }
     }
   });

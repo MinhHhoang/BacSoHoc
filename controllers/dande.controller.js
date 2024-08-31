@@ -9,14 +9,19 @@ exports.create = async (req, res) => {
         money: Number(req.body.money),
     }
 
-    console.log(object)
 
     let dan = await DanDeService.findByIdValue(object.value);
 
     if (dan) {
-        const dande = await DanDeService.delete(dan.id);
-    } 
 
+        const totalMoney = Number(req.body.money) + dan.money;
+
+        const dande = await DanDeService.update({...object,money : totalMoney }, dan.id);
+        return res.json({
+            data: dande,
+            message: 'Bổ sung tiền dàn đề thành công'
+        });
+    } 
 
     const dande = await DanDeService.create(object);
     return res.json({
