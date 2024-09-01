@@ -225,7 +225,7 @@ exports.updateUngTien = async (req, res) => {
 
     var object = await DanDeService.findByUngChuyenId(req.params.id)
 
-    await DanDeService.updateUngTien({...object,tienung: req.params.tienung+ object.tienung}, req.params.id);
+    await DanDeService.updateUngTien({...object,tienung: Number(req.params.tienung)+ Number(object.tienung)}, req.params.id);
 
     try {
         // Fetch data from DanDeService
