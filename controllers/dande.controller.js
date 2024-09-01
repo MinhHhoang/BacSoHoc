@@ -222,13 +222,10 @@ exports.updateCongtien = async (req, res) => {
 
 exports.updateUngTien = async (req, res) => {
 
-    const object = {
-        tienung: req.params.tienung,
-    }
 
-    console.log(object)
+    var object = await DanDeService.findByUngChuyenId(req.params.id)
 
-    await DanDeService.updateUngTien(object, req.params.id);
+    await DanDeService.updateUngTien({...object,tienung: req.params.tienung+ object.tienung}, req.params.id);
 
     try {
         // Fetch data from DanDeService

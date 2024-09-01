@@ -28,6 +28,10 @@ exports.updateUngTien = (object, id) => {
   });
 };
 
+exports.findByUngChuyenId = (id) => {
+  return UngChuyenModel.findByPk(id);
+}
+
 exports.findByIdSetting = () => {
   return SettingModel.findByPk(1);
 }
