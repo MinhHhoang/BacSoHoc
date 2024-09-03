@@ -17,6 +17,7 @@ router.delete('/dande/:id', ErrorHandler(DanDeController.delete));
 router.get('/dande', ErrorHandler(DanDeController.getDanDes));
 router.get('/static', ErrorHandler(DanDeController.getStatic));
 router.get('/reset', ErrorHandler(DanDeController.reset));
+router.get('/ungcopy', ErrorHandler(DanDeController.ungCopy));
 
 
 router.put('/setting', ErrorHandler(DanDeController.updateSetting));

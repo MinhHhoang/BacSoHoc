@@ -36,19 +36,78 @@ exports.create = async (req, res) => {
 
 }
 
+exports.ungCopy = async (req, res) => {
+    try {
+        // Fetch data from DanDeService
+        const [objects, limitSetting, ungchuyens] = await Promise.all([
+            DanDeService.findAlls(),
+            DanDeService.findByIdSetting(),
+            DanDeService.findAllUngChuyen()
+        ]);
 
-// exports.createChuyen = async (req, res) => {
+        // Initialize the money dictionary using a map for quick lookups
+        const moneyDict = new Map(
+            Array.from({ length: 100 }, (_, i) => [
+                i.toString().padStart(2, '0'),
+                { totalMoney: 0, tienung: 0, idtienung: 0, history: "" }
+            ])
+        );
 
-    
+        // Update moneyDict with tienung values from ungchuyens
+        ungchuyens.forEach(({ name, tienung, id, history }) => {
+            const entry = moneyDict.get(name);
+            if (entry) {
+                entry.tienung = tienung;
+                entry.idtienung = id;
+                entry.history = history;
+            }
+        });
 
-//     for (let i = 0; i < 100; i++) {
-//         const key = i.toString().padStart(2, '0');
-//         await DanDeService.createUngTien({name : key, tienung: 0})
-//     }
+        // Update the money dictionary based on the fetched objects
+        objects.forEach(obj => {
+            const numbers = obj.value.split(',').map(num => num.trim());
+            const money = obj.money;
+            numbers.forEach(number => {
+                const entry = moneyDict.get(number);
+                if (entry) {
+                    entry.totalMoney += money;
+                }
+            });
+        });
 
+        // Prepare the response
+        let copyTarget = "";
+        const result = {};
 
+        moneyDict.forEach((entry, key) => {
+            const total = entry.totalMoney - limitSetting.limit;
+            if (total > 0) {
+                copyTarget += `${key} = ${total} ; `;
+            }
+            result[key] = {
+                idtienung: entry.idtienung,
+                totalMoney: entry.totalMoney,
+                tienung: entry.tienung,
+                history: entry.history,
+                total,
+                status: total > limitSetting.limit ? 'Vượt quá hạn mức' : 'Bình Thường'
+            };
+        });
 
-// }
+        // Return the response with the computed values
+        return res.status(200).json({
+            copyTarget,
+            status: true
+        });
+    } catch (error) {
+        // Handle errors and respond with appropriate status
+        console.error('Error fetching or processing data:', error);
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            status: false
+        });
+    }
+}
 
 
 
