@@ -225,8 +225,14 @@ exports.updateUngTien = async (req, res) => {
 
 
     var object = await DanDeService.findByUngChuyenId(req.params.id)
+    console.log(object)
+    let historyTmp = "";
+    if(object.history == "") {
+        historyTmp =  req.params.tienung;
+    } else {
+        historyTmp = object.history + ", "+ req.params.tienung;
+    }
 
-    let historyTmp = object.history + ", "+ req.body.money;
 
     await DanDeService.updateUngTien({...object,tienung: Number(req.params.tienung)+ Number(object.tienung),history : historyTmp}, req.params.id);
 
