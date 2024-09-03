@@ -209,9 +209,7 @@ exports.updateCongtien = async (req, res) => {
 
     let object = await DanDeService.findById(req.params.id);
 
-    let historyTmp = object.history + ", "+ req.body.money;
-
-    await DanDeService.update({...object, money : Number(req.body.money) + object.money, history : historyTmp}, req.params.id);
+    await DanDeService.update({...object, money : Number(req.body.money) + object.money}, req.params.id);
 
     dande = await DanDeService.findById(req.params.id);
 
@@ -228,7 +226,9 @@ exports.updateUngTien = async (req, res) => {
 
     var object = await DanDeService.findByUngChuyenId(req.params.id)
 
-    await DanDeService.updateUngTien({...object,tienung: Number(req.params.tienung)+ Number(object.tienung)}, req.params.id);
+    let historyTmp = object.history + ", "+ req.body.money;
+
+    await DanDeService.updateUngTien({...object,tienung: Number(req.params.tienung)+ Number(object.tienung),history : historyTmp}, req.params.id);
 
     try {
         // Fetch data from DanDeService
