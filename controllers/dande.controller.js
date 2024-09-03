@@ -209,9 +209,9 @@ exports.updateCongtien = async (req, res) => {
 
     let object = await DanDeService.findById(req.params.id);
 
-    let history = object.history +req.body.money + ", ";
+    let historyTmp = object.history + ", "+ req.body.money;
 
-    await DanDeService.update({...object, money : Number(req.body.money) + object.money, history : history}, req.params.id);
+    await DanDeService.update({...object, money : Number(req.body.money) + object.money, history : historyTmp}, req.params.id);
 
     dande = await DanDeService.findById(req.params.id);
 
