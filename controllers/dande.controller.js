@@ -136,7 +136,7 @@ exports.getStatic = async (req, res) => {
         });
 
         // Convert the moneyDict array to an object and process status
-        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung }) => {
+        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung, history }) => {
             const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
             const total = totalMoney - tienung;
             acc[key] = {
@@ -273,7 +273,7 @@ exports.updateUngTien = async (req, res) => {
         });
 
         // Convert the moneyDict array to an object and process status
-        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung }) => {
+        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung, history }) => {
             const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
             const total = totalMoney - tienung;
             acc[key] = {
