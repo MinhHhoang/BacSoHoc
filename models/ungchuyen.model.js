@@ -7,6 +7,9 @@ const UngChuyens = sequelize.define('UngChuyens', {
     },
     tienung: {
         type: DataTypes.INTEGER 
-    }
+    },
+    history: {
+        type: DataTypes.STRING 
+    },
 }); 
 module.exports = UngChuyens;

@@ -108,15 +108,17 @@ exports.getStatic = async (req, res) => {
             key: i.toString().padStart(2, '0'),
             totalMoney: 0,
             tienung: 0,
-            idtienung: 0
+            idtienung: 0,
+              history : ""
         }));
         
         // Update moneyDict with tienung values from ungchuyens
-        ungchuyens.forEach(({ name, tienung, id }) => {
+        ungchuyens.forEach(({ name, tienung, id, history }) => {
             const index = moneyDict.findIndex(item => item.key === name);
             if (index !== -1) {
                 moneyDict[index].tienung = tienung;
                 moneyDict[index].idtienung = id;
+                moneyDict[index].history = history;
             }
         });
         
@@ -141,6 +143,7 @@ exports.getStatic = async (req, res) => {
                 idtienung,
                 totalMoney,
                 tienung,
+                history,
                 total,
                 status
             };
@@ -206,9 +209,9 @@ exports.updateCongtien = async (req, res) => {
 
     let object = await DanDeService.findById(req.params.id);
 
-    
+    let history = object.history +req.body.money + ", ";
 
-    await DanDeService.update({...object, money : Number(req.body.money) + object.money}, req.params.id);
+    await DanDeService.update({...object, money : Number(req.body.money) + object.money, history : history}, req.params.id);
 
     dande = await DanDeService.findById(req.params.id);
 
@@ -242,15 +245,17 @@ exports.updateUngTien = async (req, res) => {
             key: i.toString().padStart(2, '0'),
             totalMoney: 0,
             tienung: 0,
-            idtienung: 0
+            idtienung: 0,
+            history : ""
         }));
         
         // Update moneyDict with tienung values from ungchuyens
-        ungchuyens.forEach(({ name, tienung, id }) => {
+        ungchuyens.forEach(({ name, tienung, id, history }) => {
             const index = moneyDict.findIndex(item => item.key === name);
             if (index !== -1) {
                 moneyDict[index].tienung = tienung;
                 moneyDict[index].idtienung = id;
+                moneyDict[index].history = history;
             }
         });
         
@@ -275,6 +280,7 @@ exports.updateUngTien = async (req, res) => {
                 idtienung,
                 totalMoney,
                 tienung,
+                history,
                 total,
                 status
             };
