@@ -117,25 +117,15 @@ exports.ungCopy = async (req, res) => {
         const result = {};
 
         moneyDict.forEach(async (entry, key) => {
-            const total = entry.totalMoney - limitSetting.limit;
+            const total = entry.tongtien - limitSetting.limit;
             if (total > 0) {
                 copyTarget += `${key} = ${total} ; `;
-
                 const objectt = await DanDeService.findByUngChuyenNameId(key);
                 await DanDeService.updateUngTienByName(
                     { ...objectt, tongtien:  limitSetting.limit},
                     key
                 );
-
             }
-            result[key] = {
-                idtienung: entry.idtienung,
-                totalMoney: entry.totalMoney,
-                tienung: entry.tienung,
-                history: entry.history,
-                total,
-                status: total > limitSetting.limit ? 'Vượt quá hạn mức' : 'Bình Thường'
-            };
         });
 
         // Return the response with the computed values
