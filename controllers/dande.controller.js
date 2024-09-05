@@ -76,8 +76,7 @@ exports.create = async (req, res) => {
 exports.ungCopy = async (req, res) => {
     try {
         // Fetch data from DanDeService
-        const [objects, limitSetting, ungchuyens] = await Promise.all([
-            DanDeService.findAlls(),
+        const [limitSetting, ungchuyens] = await Promise.all([
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);
@@ -86,40 +85,48 @@ exports.ungCopy = async (req, res) => {
         const moneyDict = new Map(
             Array.from({ length: 100 }, (_, i) => [
                 i.toString().padStart(2, '0'),
-                { totalMoney: 0, tienung: 0, idtienung: 0, history: "" }
+                { tongtien: 0, tienung: 0, idtienung: 0, history: "" }
             ])
         );
 
         // Update moneyDict with tienung values from ungchuyens
-        ungchuyens.forEach(({ name, tienung, id, history }) => {
+        ungchuyens.forEach(({ name, tienung, id, history, tongtien }) => {
             const entry = moneyDict.get(name);
             if (entry) {
+                entry.tongtien = tongtien;
                 entry.tienung = tienung;
                 entry.idtienung = id;
                 entry.history = history;
             }
         });
 
-        // Update the money dictionary based on the fetched objects
-        objects.forEach(obj => {
-            const numbers = obj.value.split(',').map(num => num.trim());
-            const money = obj.money;
-            numbers.forEach(number => {
-                const entry = moneyDict.get(number);
-                if (entry) {
-                    entry.totalMoney += money;
-                }
-            });
-        });
+        // // Update the money dictionary based on the fetched objects
+        // objects.forEach(obj => {
+        //     const numbers = obj.value.split(',').map(num => num.trim());
+        //     const money = obj.money;
+        //     numbers.forEach(number => {
+        //         const entry = moneyDict.get(number);
+        //         if (entry) {
+        //             entry.totalMoney += money;
+        //         }
+        //     });
+        // });
 
         // Prepare the response
         let copyTarget = "";
         const result = {};
 
-        moneyDict.forEach((entry, key) => {
+        moneyDict.forEach(async (entry, key) => {
             const total = entry.totalMoney - limitSetting.limit;
             if (total > 0) {
                 copyTarget += `${key} = ${total} ; `;
+
+                const objectt = await DanDeService.findByUngChuyenNameId(key);
+                await DanDeService.updateUngTienByName(
+                    { ...objectt, tongtien:  limitSetting.limit},
+                    key
+                );
+
             }
             result[key] = {
                 idtienung: entry.idtienung,
