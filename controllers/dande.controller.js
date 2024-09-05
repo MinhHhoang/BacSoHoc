@@ -16,10 +16,14 @@ exports.create = async (req, res) => {
 
         const totalMoney = Number(req.body.money) + Number(dan.money);
 
-        console.log(totalMoney)
-        console.log(dan.id)
-
         const dande = await DanDeService.update({...object,name : dan.name, money : totalMoney }, dan.id);
+
+        const numbersArray = str.split(', ').map(Number);
+        for (let i = 0; i < numbersArray.length; i++) {
+            var objectt = await DanDeService.findByUngChuyenId(numbersArray[i])
+            await DanDeService.updateUngTien({...object,tienung: Number(req.body.money)+ Number(objectt.tongtien)}, req.params.id);
+        }
+
         return res.json({
             data: dande,
             message: 'Bổ sung tiền dàn đề thành công'
@@ -27,6 +31,13 @@ exports.create = async (req, res) => {
     } 
 
     const dande = await DanDeService.create(object);
+
+    const numbersArray = str.split(', ').map(Number);
+    for (let i = 0; i < numbersArray.length; i++) {
+        var objectt = await DanDeService.findByUngChuyenId(numbersArray[i])
+        await DanDeService.updateUngTien({...object,tienung: Number(req.body.money)+ Number(objectt.tongtien)}, req.params.id);
+    }
+
     return res.json({
         data: dande,
         message: 'Tạo dàn đề thành công'
