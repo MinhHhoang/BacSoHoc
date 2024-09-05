@@ -184,16 +184,29 @@ exports.reset = async (req, res) => {
     }
 }
 
+// Function to calculate total money
+function calculateTotalMoney(sets) {
+    return sets.reduce((total, set) => {
+        // Split the values by comma and count the number of values
+        const numValues = set.value.split(',').length;
+        // Calculate the total money for this set
+        const setTotal = numValues * set.money;
+        // Add to the overall total
+        return total + setTotal;
+    }, 0);
+}
+
 
 exports.getStatic = async (req, res) => {
     try {
         // Fetch data from DanDeService
-        const [limitSetting, ungchuyens] = await Promise.all([
+        const [objects, limitSetting, ungchuyens] = await Promise.all([
+            DanDeService.findAlls(),
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);
 
-
+        const sumTotalMoney = calculateTotalMoney(objects);
 
         // Initialize the money dictionary for numbers from 00 to 99
         const moneyDict = Array.from({ length: 100 }, (_, i) => ({
@@ -252,8 +265,8 @@ exports.getStatic = async (req, res) => {
             }, {});
 
         // Calculate sumTotalMoney
-        const sumTotalMoney = Object.values(result)
-            .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
+        // const sumTotalMoney = Object.values(result)
+        //     .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
 
         // Calculate sumTotalMoney
         const sumTotalAfterUng = Object.values(result)
@@ -349,7 +362,8 @@ exports.updateUngTien = async (req, res) => {
 
     try {
         // Fetch data from DanDeService
-        const [limitSetting, ungchuyens] = await Promise.all([
+        const [objects,limitSetting, ungchuyens] = await Promise.all([
+            DanDeService.findAlls(),
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);
@@ -411,10 +425,12 @@ exports.updateUngTien = async (req, res) => {
                 acc[number] = value;
                 return acc;
             }, {});
+        
 
+        const sumTotalMoney = calculateTotalMoney(objects);
         // Calculate sumTotalMoney
-        const sumTotalMoney = Object.values(result)
-            .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
+        // const sumTotalMoney = Object.values(result)
+        //     .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
 
         // Calculate sumTotalMoney
         const sumTotalAfterUng = Object.values(result)
