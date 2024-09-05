@@ -32,6 +32,14 @@ exports.findByUngChuyenId = (id) => {
   return UngChuyenModel.findByPk(id);
 }
 
+exports.findByUngChuyenNameId = (id) => {
+  return UngChuyenModel.findOne({
+    where: {
+      name: id
+    }
+  });
+}
+
 exports.findByIdSetting = () => {
   return SettingModel.findByPk(1);
 }
@@ -63,7 +71,7 @@ exports.resetUngChuyen = () => {
   return UngChuyenModel.update(
     {
       tienung: 0,
-      history : ""
+      history: ""
     },
     {
       where: {
