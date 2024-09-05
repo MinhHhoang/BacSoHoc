@@ -4,7 +4,7 @@ const DanDeService = require('../services/dande.service');
 exports.create = async (req, res) => {
 
     const object = {
-        name : req.body.name,
+        name: req.body.name,
         value: req.body.value,
         money: Number(req.body.money),
     }
@@ -16,27 +16,53 @@ exports.create = async (req, res) => {
 
         const totalMoney = Number(req.body.money) + Number(dan.money);
 
-        const dande = await DanDeService.update({...object,name : dan.name, money : totalMoney }, dan.id);
+        const dande = await DanDeService.update({ ...object, name: dan.name, money: totalMoney }, dan.id);
 
-        const numbersArray = req.body.value.split(', ');
-        for (let i = 0; i < numbersArray.length; i++) {
-            var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
-            await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
-        }
+        // Tách chuỗi thành mảng các số
+        const numbersArray = object.value.split(', ');
+
+        // Tạo mảng các promises
+        const updatePromises = numbersArray.map(async (number) => {
+            try {
+                const objectt = await DanDeService.findByUngChuyenNameId(number);
+                await DanDeService.updateUngTienByName(
+                    { ...objectt, tongtien: Number(req.body.money) + Number(objectt.tongtien) },
+                    number
+                );
+            } catch (error) {
+                console.error(`Error processing number ${number}:`, error);
+            }
+        });
+
+        // Chờ tất cả promises hoàn thành
+        await Promise.all(updatePromises);
 
         return res.json({
             data: dande,
             message: 'Bổ sung tiền dàn đề thành công'
         });
-    } 
+    }
 
     const dande = await DanDeService.create(object);
 
-    const numbersArray = req.body.value.split(', ');
-    for (let i = 0; i < numbersArray.length; i++) {
-        var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
-        await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
-    }
+    // Tách chuỗi thành mảng các số
+    const numbersArray = object.value.split(', ');
+
+    // Tạo mảng các promises
+    const updatePromises = numbersArray.map(async (number) => {
+        try {
+            const objectt = await DanDeService.findByUngChuyenNameId(number);
+            await DanDeService.updateUngTienByName(
+                { ...objectt, tongtien: Number(req.body.money) + Number(objectt.tongtien) },
+                number
+            );
+        } catch (error) {
+            console.error(`Error processing number ${number}:`, error);
+        }
+    });
+
+    // Chờ tất cả promises hoàn thành
+    await Promise.all(updatePromises);
 
     return res.json({
         data: dande,
@@ -171,17 +197,17 @@ exports.getStatic = async (req, res) => {
             DanDeService.findAllUngChuyen()
         ]);
 
-        
-        
+
+
         // Initialize the money dictionary for numbers from 00 to 99
         const moneyDict = Array.from({ length: 100 }, (_, i) => ({
             key: i.toString().padStart(2, '0'),
             totalMoney: 0,
             tienung: 0,
             idtienung: 0,
-              history : ""
+            history: ""
         }));
-        
+
         // Update moneyDict with tienung values from ungchuyens
         ungchuyens.forEach(({ name, tienung, id, history }) => {
             const index = moneyDict.findIndex(item => item.key === name);
@@ -191,7 +217,7 @@ exports.getStatic = async (req, res) => {
                 moneyDict[index].history = history;
             }
         });
-        
+
 
         // Update the money dictionary based on the fetched objects
         objects.forEach(obj => {
@@ -232,9 +258,9 @@ exports.getStatic = async (req, res) => {
         const sumTotalMoney = Object.values(result)
             .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
 
-            // Calculate sumTotalMoney
+        // Calculate sumTotalMoney
         const sumTotalAfterUng = Object.values(result)
-        .reduce((sum, { total }) => sum + total, 0);
+            .reduce((sum, { total }) => sum + total, 0);
 
         // Return the response with sorted results and sumTotalMoney
         return res.status(200).json({
@@ -279,16 +305,28 @@ exports.updateCongtien = async (req, res) => {
 
     let object = await DanDeService.findById(req.params.id);
 
-    await DanDeService.update({...object, money : Number(req.body.money) + object.money}, req.params.id);
+    await DanDeService.update({ ...object, money: Number(req.body.money) + object.money }, req.params.id);
 
     dande = await DanDeService.findById(req.params.id);
 
+    // Tách chuỗi thành mảng các số
     const numbersArray = object.value.split(', ');
-    for (let i = 0; i < numbersArray.length; i++) {
-        var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
-        await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
-    }
 
+    // Tạo mảng các promises
+    const updatePromises = numbersArray.map(async (number) => {
+        try {
+            const objectt = await DanDeService.findByUngChuyenNameId(number);
+            await DanDeService.updateUngTienByName(
+                { ...objectt, tongtien: Number(req.body.money) + Number(objectt.tongtien) },
+                number
+            );
+        } catch (error) {
+            console.error(`Error processing number ${number}:`, error);
+        }
+    });
+
+    // Chờ tất cả promises hoàn thành
+    await Promise.all(updatePromises);
     return res.json({
         data: dande,
         message: 'Cập nhật giá tiền thành công.',
@@ -303,14 +341,14 @@ exports.updateUngTien = async (req, res) => {
     var object = await DanDeService.findByUngChuyenId(req.params.id)
     console.log(object)
     let historyTmp = "";
-    if(object.history == "") {
-        historyTmp =  req.params.tienung;
+    if (object.history == "") {
+        historyTmp = req.params.tienung;
     } else {
-        historyTmp = object.history + ", "+ req.params.tienung;
+        historyTmp = object.history + ", " + req.params.tienung;
     }
 
 
-    await DanDeService.updateUngTien({...object,tienung: Number(req.params.tienung)+ Number(object.tienung),history : historyTmp}, req.params.id);
+    await DanDeService.updateUngTien({ ...object, tienung: Number(req.params.tienung) + Number(object.tienung), history: historyTmp }, req.params.id);
 
     try {
         // Fetch data from DanDeService
@@ -320,17 +358,17 @@ exports.updateUngTien = async (req, res) => {
             DanDeService.findAllUngChuyen()
         ]);
 
-        
-        
+
+
         // Initialize the money dictionary for numbers from 00 to 99
         const moneyDict = Array.from({ length: 100 }, (_, i) => ({
             key: i.toString().padStart(2, '0'),
             totalMoney: 0,
             tienung: 0,
             idtienung: 0,
-            history : ""
+            history: ""
         }));
-        
+
         // Update moneyDict with tienung values from ungchuyens
         ungchuyens.forEach(({ name, tienung, id, history }) => {
             const index = moneyDict.findIndex(item => item.key === name);
@@ -340,7 +378,7 @@ exports.updateUngTien = async (req, res) => {
                 moneyDict[index].history = history;
             }
         });
-        
+
 
         // Update the money dictionary based on the fetched objects
         objects.forEach(obj => {
@@ -381,9 +419,9 @@ exports.updateUngTien = async (req, res) => {
         const sumTotalMoney = Object.values(result)
             .reduce((sum, { totalMoney }) => sum + totalMoney, 0);
 
-            // Calculate sumTotalMoney
+        // Calculate sumTotalMoney
         const sumTotalAfterUng = Object.values(result)
-        .reduce((sum, { total }) => sum + total, 0);
+            .reduce((sum, { total }) => sum + total, 0);
 
         // Return the response with sorted results and sumTotalMoney
         return res.status(200).json({
@@ -402,14 +440,14 @@ exports.updateUngTien = async (req, res) => {
         });
     }
 
-   
+
 }
 
 
 exports.updateSetting = async (req, res) => {
     const limitSetting = await DanDeService.findByIdSetting()
 
-    await DanDeService.updateSetting({...limitSetting,limit : req.body.limit});
+    await DanDeService.updateSetting({ ...limitSetting, limit: req.body.limit });
 
     return res.json({
         message: 'Cập nhật hạn mức thành công.',
