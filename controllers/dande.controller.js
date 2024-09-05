@@ -191,8 +191,7 @@ exports.reset = async (req, res) => {
 exports.getStatic = async (req, res) => {
     try {
         // Fetch data from DanDeService
-        const [objects, limitSetting, ungchuyens] = await Promise.all([
-            DanDeService.findAlls(),
+        const [limitSetting, ungchuyens] = await Promise.all([
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);
@@ -202,16 +201,17 @@ exports.getStatic = async (req, res) => {
         // Initialize the money dictionary for numbers from 00 to 99
         const moneyDict = Array.from({ length: 100 }, (_, i) => ({
             key: i.toString().padStart(2, '0'),
-            totalMoney: 0,
+            tongtien: 0,
             tienung: 0,
             idtienung: 0,
             history: ""
         }));
 
         // Update moneyDict with tienung values from ungchuyens
-        ungchuyens.forEach(({ name, tienung, id, history }) => {
+        ungchuyens.forEach(({ name, tienung, id, history, tongtien }) => {
             const index = moneyDict.findIndex(item => item.key === name);
             if (index !== -1) {
+                moneyDict[index].tongtien = tongtien;
                 moneyDict[index].tienung = tienung;
                 moneyDict[index].idtienung = id;
                 moneyDict[index].history = history;
@@ -219,25 +219,25 @@ exports.getStatic = async (req, res) => {
         });
 
 
-        // Update the money dictionary based on the fetched objects
-        objects.forEach(obj => {
-            const numbers = obj.value.split(',').map(num => num.trim());
-            const money = obj.money;
-            numbers.forEach(number => {
-                const dictEntry = moneyDict.find(entry => entry.key === number);
-                if (dictEntry) {
-                    dictEntry.totalMoney += money;
-                }
-            });
-        });
+        // // Update the money dictionary based on the fetched objects
+        // objects.forEach(obj => {
+        //     const numbers = obj.value.split(',').map(num => num.trim());
+        //     const money = obj.money;
+        //     numbers.forEach(number => {
+        //         const dictEntry = moneyDict.find(entry => entry.key === number);
+        //         if (dictEntry) {
+        //             dictEntry.totalMoney += money;
+        //         }
+        //     });
+        // });
 
         // Convert the moneyDict array to an object and process status
-        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung, history }) => {
-            const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
-            const total = totalMoney - tienung;
+        const result = moneyDict.reduce((acc, { key, tongtien, tienung, idtienung, history }) => {
+            const status = tongtien - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
+            const total = tongtien - tienung;
             acc[key] = {
                 idtienung,
-                totalMoney,
+                totalMoney : tongtien,
                 tienung,
                 history,
                 total,
@@ -352,8 +352,7 @@ exports.updateUngTien = async (req, res) => {
 
     try {
         // Fetch data from DanDeService
-        const [objects, limitSetting, ungchuyens] = await Promise.all([
-            DanDeService.findAlls(),
+        const [limitSetting, ungchuyens] = await Promise.all([
             DanDeService.findByIdSetting(),
             DanDeService.findAllUngChuyen()
         ]);
@@ -363,16 +362,17 @@ exports.updateUngTien = async (req, res) => {
         // Initialize the money dictionary for numbers from 00 to 99
         const moneyDict = Array.from({ length: 100 }, (_, i) => ({
             key: i.toString().padStart(2, '0'),
-            totalMoney: 0,
+            tongtien: 0,
             tienung: 0,
             idtienung: 0,
             history: ""
         }));
 
         // Update moneyDict with tienung values from ungchuyens
-        ungchuyens.forEach(({ name, tienung, id, history }) => {
+        ungchuyens.forEach(({ name, tienung, id, history, tongtien }) => {
             const index = moneyDict.findIndex(item => item.key === name);
             if (index !== -1) {
+                moneyDict[index].tongtien = tongtien;
                 moneyDict[index].tienung = tienung;
                 moneyDict[index].idtienung = id;
                 moneyDict[index].history = history;
@@ -380,25 +380,25 @@ exports.updateUngTien = async (req, res) => {
         });
 
 
-        // Update the money dictionary based on the fetched objects
-        objects.forEach(obj => {
-            const numbers = obj.value.split(',').map(num => num.trim());
-            const money = obj.money;
-            numbers.forEach(number => {
-                const dictEntry = moneyDict.find(entry => entry.key === number);
-                if (dictEntry) {
-                    dictEntry.totalMoney += money;
-                }
-            });
-        });
+        // // Update the money dictionary based on the fetched objects
+        // objects.forEach(obj => {
+        //     const numbers = obj.value.split(',').map(num => num.trim());
+        //     const money = obj.money;
+        //     numbers.forEach(number => {
+        //         const dictEntry = moneyDict.find(entry => entry.key === number);
+        //         if (dictEntry) {
+        //             dictEntry.totalMoney += money;
+        //         }
+        //     });
+        // });
 
         // Convert the moneyDict array to an object and process status
-        const result = moneyDict.reduce((acc, { key, totalMoney, tienung, idtienung, history }) => {
-            const status = totalMoney - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
-            const total = totalMoney - tienung;
+        const result = moneyDict.reduce((acc, { key, tongtien, tienung, idtienung, history }) => {
+            const status = tongtien - tienung > limitSetting.limit ? 'Vượt quá hạn mước' : 'Bình Thường';
+            const total = tongtien - tienung;
             acc[key] = {
                 idtienung,
-                totalMoney,
+                totalMoney : tongtien,
                 tienung,
                 history,
                 total,
