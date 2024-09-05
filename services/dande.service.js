@@ -28,6 +28,13 @@ exports.updateUngTien = (object, id) => {
   });
 };
 
+
+exports.updateUngTienByName = (object, name) => {
+  return UngChuyenModel.update(object, {
+    where: { name: name },
+  });
+};
+
 exports.findByUngChuyenId = (id) => {
   return UngChuyenModel.findByPk(id);
 }
