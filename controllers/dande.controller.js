@@ -18,7 +18,7 @@ exports.create = async (req, res) => {
 
         const dande = await DanDeService.update({...object,name : dan.name, money : totalMoney }, dan.id);
 
-        const numbersArray = req.body.name.split(', ');
+        const numbersArray = req.body.value.split(', ');
         for (let i = 0; i < numbersArray.length; i++) {
             var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
             await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
@@ -32,7 +32,7 @@ exports.create = async (req, res) => {
 
     const dande = await DanDeService.create(object);
 
-    const numbersArray = req.body.name.split(', ');
+    const numbersArray = req.body.value.split(', ');
     for (let i = 0; i < numbersArray.length; i++) {
         var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
         await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
@@ -283,7 +283,7 @@ exports.updateCongtien = async (req, res) => {
 
     dande = await DanDeService.findById(req.params.id);
 
-    const numbersArray = req.body.name.split(', ');
+    const numbersArray = object.value.split(', ');
     for (let i = 0; i < numbersArray.length; i++) {
         var objectt = await DanDeService.findByUngChuyenNameId(numbersArray[i])
         await DanDeService.updateUngTienByName({...objectt, tongtien: Number(req.body.money)+ Number(objectt.tongtien)}, numbersArray[i]);
