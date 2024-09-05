@@ -5,6 +5,9 @@ const UngChuyens = sequelize.define('UngChuyens', {
     name: {
         type: DataTypes.STRING 
     },
+    tongtien: {
+        type: DataTypes.INTEGER 
+    },
     tienung: {
         type: DataTypes.INTEGER 
     },
