@@ -78,7 +78,8 @@ exports.resetUngChuyen = () => {
   return UngChuyenModel.update(
     {
       tienung: 0,
-      history: ""
+      history: "",
+      tongtien : 0
     },
     {
       where: {
